@@ -119,3 +119,6 @@
   }
 }
 
+@utility bg-gradient {
+  @apply bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 ;
+}

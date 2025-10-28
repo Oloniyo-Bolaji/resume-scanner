@@ -1,89 +1,104 @@
-import NextAuth from "next-auth"
-import GoogleProvider from "next-auth/providers/google"
-import CredentialsProvider from "next-auth/providers/credentials"
+import { NextAuthOptions } from "next-auth";
+import GoogleProvider from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
+import { db } from "./lib/database";
+import { usersTable } from "./lib/database/schema";
+import { eq } from "drizzle-orm";
 
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
     CredentialsProvider({
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        // Connect to your database
-        const user = await getUserByEmail(credentials.email)
-        
-        if (!user) {
-          throw new Error("No user found with this email")
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Email and password are required");
         }
-        
+
+        const user = await db.query.usersTable.findFirst({
+          where: eq(usersTable.email, credentials.email),
+        });
+
+        if (!user) {
+          throw new Error("No user found with this email");
+        }
+
         // Check if user signed up with Google (no password set)
         if (!user.password) {
-          throw new Error("Please sign in with Google")
+          throw new Error("Please sign in with Google");
         }
-        
+
         // Verify password
-        const isValid = await bcrypt.compare(credentials.password, user.password)
-        
+        const isValid = await bcrypt.compare(
+          credentials?.password,
+          user.password
+        );
+
         if (!isValid) {
-          throw new Error("Invalid password")
+          throw new Error("Invalid password");
         }
-        
+
         return {
           id: user.id,
           email: user.email,
           name: user.name,
-          image: user.image
-        }
-      }
-    })
+          image: user.image,
+        };
+      },
+    }),
   ],
   callbacks: {
-    async signIn({ user, account, profile }) {
-      if (account.provider === "google") {
-        // Check if user exists, if not create them
-        const existingUser = await getUserByEmail(user.email)
-        
+    async signIn({ user, account }) {
+      if (account && account.provider === "google") {
+        // Ensure user.email exists
+        if (!user.email) {
+          throw new Error("Google account email is missing");
+        }
+
+        // Check if user exists
+        const existingUser = await db.query.usersTable.findFirst({
+          where: eq(usersTable.email, user.email),
+        });
+
         if (!existingUser) {
-          await createUser({
+          await db.insert(usersTable).values({
+            name: user.name ?? "",
             email: user.email,
-            name: user.name,
-            image: user.image,
-            provider: "google"
-          })
+            image: user.image ?? "",
+            provider: "google",
+          });
         }
       }
-      return true
+
+      return true;
     },
-    async jwt({ token, user, account }) {
+    async jwt({ token, user }) {
       if (user) {
-        token.id = user.id
+        token.id = user.id;
       }
-      return token
+      return token;
     },
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id
+    async session({ session }) {
+      if (!session.user?.email) {
+        return session;
       }
-      return session
-    }
+
+      return session;
+    },
   },
   pages: {
-    signIn: '/auth/signin',
+    signIn: "/login",
   },
   session: {
-    strategy: "jwt"
+    strategy: "jwt",
   },
   secret: process.env.NEXTAUTH_SECRET,
-}
-
-export default NextAuth(authOptions)
-
-// For App Router, also export:
-export { authOptions as GET, authOptions as POST }
+};

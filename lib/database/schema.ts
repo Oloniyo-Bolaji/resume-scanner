@@ -15,8 +15,7 @@ export const providerEnum = pgEnum("provider", ["google", "email"]);
 // USERS TABLE
 export const usersTable = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
-  firstName: varchar("first_name", { length: 255 }),
-  lastName: varchar("last_name", { length: 255 }),
+  name: varchar("name", { length: 255 }),
   email: varchar("email", { length: 255 }).notNull().unique(),
   password: varchar("password", { length: 255 }), 
   image: text("image"),
