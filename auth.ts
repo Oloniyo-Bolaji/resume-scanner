@@ -81,16 +81,29 @@ export const authOptions: NextAuthOptions = {
       return true;
     },
     async jwt({ token, user }) {
+      // If user object exists (on sign in), add the ID to token
       if (user) {
         token.id = user.id;
       }
+      
+      // If token doesn't have an ID yet, fetch it from database using email
+      if (!token.id && token.email) {
+        const dbUser = await db.query.usersTable.findFirst({
+          where: eq(usersTable.email, token.email),
+        });
+        if (dbUser) {
+          token.id = dbUser.id;
+        }
+      }
+      
       return token;
     },
-    async session({ session }) {
-      if (!session.user?.email) {
-        return session;
+    async session({ session, token }) {
+      // Add the user ID from token to session
+      if (session.user) {
+        session.user.id = token.id as string;
       }
-
+      
       return session;
     },
   },

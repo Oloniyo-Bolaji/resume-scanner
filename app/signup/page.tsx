@@ -28,6 +28,7 @@ const Page = () => {
   });
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setUserDetails((prev) => ({ ...prev, [name]: value }));

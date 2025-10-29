@@ -4,3 +4,10 @@ export type User = {
   password: string;
   confirmPassword?: string;
 };
+
+export type FormsData = {
+  jobTitle: string;
+  jobDescription: string;
+  experienceLevel: string;
+  resumeUrl? : string;
+}

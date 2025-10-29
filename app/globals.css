@@ -120,5 +120,10 @@
 }
 
 @utility bg-gradient {
-  @apply bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 ;
+  @apply bg-gradient-to-br from-[#C4DFFB70] via-[#ffffff] to-[#C4DFFB80];
+}
+.hero-bg {
+  background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.6), transparent 40%),
+              linear-gradient(180deg, #e0f2ff 0%, #f8fbff 100%);
+  background-blend-mode: lighten;
 }
