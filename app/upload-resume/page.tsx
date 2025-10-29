@@ -4,9 +4,9 @@ import React from "react";
 
 const UploadResume = () => {
   return (
-    <div className="bg-gradient min-h-screen px-25 py-2.5">
+    <div className="bg-gradient min-h-screen px-6 md:px-16 lg:px-40 py-2.5">
       <Navbar />
-      <main className="flex flex-col items-center justify-center pt-20 text-center px-6 md:px-16 lg:px-32">
+      <main className="flex flex-col items-center justify-center pt-20 text-center">
         <h1 className="text-3xl md:text-5xl font-bold max-w-3xl leading-tight">
           Upload your Resume
         </h1>

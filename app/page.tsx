@@ -16,9 +16,9 @@ const Home = () => {
   };
 
   return (
-    <div className="bg-gradient px-25 py-2.5 font-sans dark:bg-black">
+    <div className="bg-gradient px-6 md:px-16 lg:px-40 py-2.5 font-sans dark:bg-black">
       <Navbar />
-      <main className="flex flex-col items-center justify-center min-h-screen text-center px-6 md:px-16 lg:px-32">
+      <main className="flex flex-col items-center justify-center min-h-screen text-center ">
         <h1 className="text-3xl md:text-5xl font-bold max-w-3xl leading-tight">
           AI That Reads Your Résumé Like a Recruiter.
         </h1>

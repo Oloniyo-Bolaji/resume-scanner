@@ -77,7 +77,7 @@ const ResumeUploader = ({
               <div className="flex justify-between items-center">
                 <Image src="/pdflogo.jpg" alt="logo" width={20} height={20} />
                 <p className="text-sm text-gray-600">{file.name}</p>
-                <button onClick={handleRemove} disabled={isUploading}>
+                <button onClick={handleRemove}>
                   <X className={isUploading ? "opacity-50" : ""} />
                 </button>
               </div>
