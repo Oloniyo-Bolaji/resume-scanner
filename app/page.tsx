@@ -12,6 +12,7 @@ const Home = () => {
   const handleForFree = () => {
     if (!session) {
       router.push("/login");
+      //sadd alert
     } else router.push("/upload-resume");
   };
 

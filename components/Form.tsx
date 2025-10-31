@@ -27,11 +27,13 @@ const levelEnum = z.enum(["Entry level", "Mid Level", "Senior Level"]);
 
 const Form = () => {
   const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<string>("");
   const [formData, setFormData] = useState<FormsData>({
     jobTitle: "",
     jobDescription: "",
     experienceLevel: "",
     resumeUrl: "",
+    imagePaths: [],
   });
 
   const handleChange = (
@@ -52,8 +54,9 @@ const Form = () => {
       return;
     }
     setLoading(true);
+    setStatus("Uploading your resume...");
+
     console.log(formData);
-    console.log(loading);
     // Your submission logic here
   };
 
@@ -62,7 +65,7 @@ const Form = () => {
       {loading ? (
         <div className="flex flex-col justify-center items-center">
           <p className="mt-3 text-sm md:text-base text-slate-600 max-w-2xl">
-            Uploading Resume...
+            {status}
           </p>
           <Image
             src="/scanning-lens.svg"

@@ -1,13 +1,7 @@
 import type { Metadata } from "next";
-import { Roboto } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./provider";
 
-const roboto = Roboto({
-  variable: "--font-roboto",
-  subsets: ["latin"],
-  weight: ["400", "500", "700"], // optional, add weights you need
-});
 
 export const metadata: Metadata = {
   title: "Resume-Scanner",
@@ -22,7 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${roboto.variable}`}
+        className={``}
       >
         <Providers>{children}</Providers>
       </body>

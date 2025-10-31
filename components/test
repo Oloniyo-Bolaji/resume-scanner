@@ -1,0 +1,258 @@
+const RESUME_SCORING_PROMPT = `You are an expert resume reviewer and ATS (Applicant Tracking System) specialist. Analyze the following resume and provide detailed scoring and feedback.
+
+RESUME CONTENT:
+${resumeText}
+
+${jobTitle ? `TARGET JOB TITLE: ${jobTitle}` : ''}
+${industry ? `INDUSTRY: ${industry}` : ''}
+
+SCORING CRITERIA:
+
+1. FORMATTING & STRUCTURE (Weight: 15%)
+   - Clean, professional layout
+   - Consistent formatting (fonts, spacing, bullets)
+   - Appropriate length (1-2 pages)
+   - Contact information clearly visible
+   - ATS-friendly format (no tables, images, or complex formatting)
+   Score: 0-100
+
+2. CONTENT QUALITY (Weight: 20%)
+   - Clear, concise language
+   - No spelling or grammatical errors
+   - Professional tone
+   - Relevant information only
+   - Quantifiable achievements
+   Score: 0-100
+
+3. EXPERIENCE SECTION (Weight: 25%)
+   - Recent and relevant work history
+   - Clear job titles and company names
+   - Specific responsibilities and achievements
+   - Use of action verbs
+   - Quantified results (numbers, percentages, metrics)
+   - Demonstrates career progression
+   Score: 0-100
+
+4. SKILLS SECTION (Weight: 15%)
+   - Relevant technical and soft skills
+   - Industry-specific keywords
+   - Appropriate skill level indicators
+   - Mix of hard and soft skills
+   - No outdated or irrelevant skills
+   Score: 0-100
+
+5. EDUCATION & CERTIFICATIONS (Weight: 10%)
+   - Relevant degrees/certifications
+   - Clear institution names and graduation dates
+   - Notable achievements (GPA, honors) if applicable
+   - Professional development courses
+   Score: 0-100
+
+6. IMPACT & ACHIEVEMENTS (Weight: 15%)
+   - Demonstrates measurable impact
+   - Shows problem-solving abilities
+   - Highlights leadership or initiative
+   - Results-oriented descriptions
+   - Unique value proposition
+   Score: 0-100
+
+REQUIRED OUTPUT FORMAT (JSON):
+{
+  "overallScore": <0-100>,
+  "categoryScores": {
+    "formatting": {
+      "score": <0-100>,
+      "weight": 15,
+      "feedback": "<brief assessment>",
+      "suggestions": ["<specific improvement 1>", "<specific improvement 2>"]
+    },
+    "content": {
+      "score": <0-100>,
+      "weight": 20,
+      "feedback": "<brief assessment>",
+      "suggestions": ["<specific improvement 1>", "<specific improvement 2>"]
+    },
+    "experience": {
+      "score": <0-100>,
+      "weight": 25,
+      "feedback": "<brief assessment>",
+      "suggestions": ["<specific improvement 1>", "<specific improvement 2>"]
+    },
+    "skills": {
+      "score": <0-100>,
+      "weight": 15,
+      "feedback": "<brief assessment>",
+      "suggestions": ["<specific improvement 1>", "<specific improvement 2>"]
+    },
+    "education": {
+      "score": <0-100>,
+      "weight": 10,
+      "feedback": "<brief assessment>",
+      "suggestions": ["<specific improvement 1>", "<specific improvement 2>"]
+    },
+    "impact": {
+      "score": <0-100>,
+      "weight": 15,
+      "feedback": "<brief assessment>",
+      "suggestions": ["<specific improvement 1>", "<specific improvement 2>"]
+    }
+  },
+  "feedback": {
+    "strengths": [
+      "<strength 1>",
+      "<strength 2>",
+      "<strength 3>"
+    ],
+    "weaknesses": [
+      "<weakness 1>",
+      "<weakness 2>",
+      "<weakness 3>"
+    ],
+    "actionableImprovements": [
+      "<specific action 1>",
+      "<specific action 2>",
+      "<specific action 3>",
+      "<specific action 4>",
+      "<specific action 5>"
+    ]
+  },
+  "summary": "<2-3 sentence overall assessment>",
+  "atsCompatibility": <0-100>
+}
+
+IMPORTANT INSTRUCTIONS:
+- Be constructive and specific in feedback
+- Provide actionable suggestions, not generic advice
+- Calculate overallScore as weighted average of category scores
+- atsCompatibility should assess how well the resume will parse in ATS systems
+- Focus on what will make the resume stand out to recruiters
+- If target job title is provided, tailor feedback to that role
+- Return ONLY valid JSON, no additional text`
+"use client";
+
+import { useState, useEffect } from "react";
+
+export default function ResumeScanner() {
+  const [pdfUrl, setPdfUrl] = useState("");
+  const [blobUrl, setBlobUrl] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [result, setResult] = useState("");
+
+  const loadPdf = async () => {
+    if (!pdfUrl) return;
+    
+    setLoading(true);
+    try {
+      // Fetch PDF as blob
+      const response = await fetch(pdfUrl);
+      const blob = await response.blob();
+      
+      // Create blob URL
+      const url = URL.createObjectURL(blob);
+      setBlobUrl(url);
+    } catch (error) {
+      console.error(error);
+      alert("Failed to load PDF");
+    } finally {
+      setLoading(false);
+    }
+  };
+const convertPDF = async () => {
+        const response = await fetch(pdfUrl);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+
+}
+  const analyzePdf = async () => {
+    setAnalyzing(true);
+    try {
+      const response = await fetch(pdfUrl);
+      const blob = await response.blob();
+      const base64 = await blobToBase64(blob);
+      
+      const apiResponse = await fetch('/api/analyze-resume', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          pdfBase64: base64,
+          mimeType: blob.type 
+        })
+      });
+      
+      const data = await apiResponse.json();
+      setResult(data.analysis);
+    } catch (error) {
+      console.error(error);
+      alert("Failed to analyze");
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
+  // Cleanup blob URL when component unmounts
+  useEffect(() => {
+    return () => {
+      if (blobUrl) {
+        URL.revokeObjectURL(blobUrl);
+      }
+    };
+  }, [blobUrl]);
+
+  return (
+    <div className="p-8">
+      <div className="mb-4">
+        <input
+          type="text"
+          value={pdfUrl}
+          onChange={(e) => setPdfUrl(e.target.value)}
+          placeholder="Enter PDF URL"
+          className="border p-2 w-full mb-2"
+        />
+        <div className="flex gap-2">
+          <button 
+            onClick={loadPdf}
+            disabled={loading || !pdfUrl}
+            className="bg-blue-500 text-white px-4 py-2 rounded disabled:bg-gray-400"
+          >
+            {loading ? "Loading..." : "Load PDF"}
+          </button>
+          
+          <button 
+            onClick={analyzePdf}
+            disabled={analyzing || !pdfUrl}
+            className="bg-green-500 text-white px-4 py-2 rounded disabled:bg-gray-400"
+          >
+            {analyzing ? "Analyzing..." : "Analyze with AI"}
+          </button>
+        </div>
+      </div>
+
+      {/* Display PDF using object with blob URL */}
+      {blobUrl && (
+        <div className="mb-4">
+          <object
+            data={blobUrl}
+            type="application/pdf"
+            className="w-full h-screen border rounded shadow-lg"
+          >
+            <p className="p-4">
+              Unable to display PDF. 
+              <a href={blobUrl} download className="text-blue-500 underline ml-2">
+                Download instead
+              </a>
+            </p>
+          </object>
+        </div>
+      )}
+
+      {/* Display AI result */}
+      {result && (
+        <div className="border p-4 bg-gray-50 rounded">
+          <h3 className="font-bold mb-2 text-lg">Analysis Result:</h3>
+          <pre className="whitespace-pre-wrap text-sm">{result}</pre>
+        </div>
+      )}
+    </div>
+  );
+}
