@@ -3,40 +3,48 @@
 import Review from "@/components/Review";
 import { AnalysisData } from "@/types";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
 const ReviewPage = () => {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
-  const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (id) {
-      // Retrieve data from sessionStorage
-      const storageKey = `resumeAnalysis_${id}`;
-      const storedData = sessionStorage.getItem(storageKey);
+  // Read and parse data directly - no state needed!
+  const { analysisData, error, loading } = useMemo(() => {
+    if (!id) {
+      return {
+        analysisData: null,
+        error: "No scan ID provided",
+        loading: false,
+      };
+    }
 
-      if (storedData) {
-        try {
-          const parsedData: AnalysisData = JSON.parse(storedData);
-          console.log(parsedData);
-          setAnalysisData(parsedData);
+    const storageKey = `resumeAnalysis_${id}`;
+    const storedData = sessionStorage.getItem(storageKey);
 
-          // Optional: Clean up sessionStorage after retrieving data
-          // sessionStorage.removeItem(storageKey);
-        } catch (err) {
-          setError("Failed to parse analysis data");
-          console.error("Error parsing stored data:", err);
-        }
-      } else {
-        setError("No analysis data found. Please try scanning again.");
-      }
-      setLoading(false);
-    } else {
-      setError("No scan ID provided");
-      setLoading(false);
+    if (!storedData) {
+      return {
+        analysisData: null,
+        error: "No analysis data found. Please try scanning again.",
+        loading: false,
+      };
+    }
+
+    try {
+      const parsedData: AnalysisData = JSON.parse(storedData);
+      console.log(parsedData);
+      return {
+        analysisData: parsedData,
+        error: null,
+        loading: false,
+      };
+    } catch (err) {
+      console.error("Error parsing stored data:", err);
+      return {
+        analysisData: null,
+        error: "Failed to parse analysis data",
+        loading: false,
+      };
     }
   }, [id]);
 
@@ -79,12 +87,19 @@ const ReviewPage = () => {
   };
 
   const { analysis, images } = analysisData;
-  
+
   return (
-    <main className="bg-gradient">
-      <h1>Your Resume scored a {gradeScore(analysis.overallScore)}</h1>
-      <p>{analysis.summary}</p>
-      <Review  analysis={analysis} images={images}/>
+    <main className="bg-gradient lg:px-20 sm:px-10 px-2.5">
+      <div className="flex flex-col items-center justify-center pt-20 text-center">
+        <h1 className="text-3xl md:text-5xl font-bold max-w-3xl leading-tight">
+          YourResumeSanner Review
+        </h1>
+        <p className="my-3 text-sm md:text-base text-slate-600 max-w-2xl">
+          Your Resume scored a {gradeScore(analysis.overallScore)}
+        </p>
+      </div>
+
+      <Review analysis={analysis} images={images} />
     </main>
   );
 };

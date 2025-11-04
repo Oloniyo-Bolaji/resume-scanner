@@ -17,45 +17,48 @@ interface InsightsProps {
 
 const Insights = ({ feedback }: InsightsProps) => {
   return (
-    <Accordion
-      type="single"
-      collapsible
-      className="w-full"
-      defaultValue="item-1"
-    >
-      <AccordionItem value="item-1">
-        <AccordionTrigger>Strengths</AccordionTrigger>
-        <AccordionContent>
-          <ul className="list-disc list-inside space-y-1.5 text-balance">
-            {feedback.strengths.map((strength, index) => (
-              <li key={index}>{strength}</li>
-            ))}
-          </ul>
-        </AccordionContent>
-      </AccordionItem>
+    <div>
+      <h1 className="font-bold text-base lg:text-2xl">Resume Insights</h1>
+      <Accordion
+        type="single"
+        collapsible
+        className="w-full"
+        defaultValue="item-1"
+      >
+        <AccordionItem value="item-1">
+          <AccordionTrigger className="text-[green]">Strengths</AccordionTrigger>
+          <AccordionContent className="bg-[#D3D3D3] px-2.5 py-1.5">
+            <ul className="list-disc list-inside space-y-1.5 text-balance">
+              {feedback.strengths.map((strength, index) => (
+                <li key={index}>{strength}</li>
+              ))}
+            </ul>
+          </AccordionContent>
+        </AccordionItem>
 
-      <AccordionItem value="item-2">
-        <AccordionTrigger>Weaknesses</AccordionTrigger>
-        <AccordionContent>
-          <ul className="list-disc list-inside space-y-1.5 text-balance">
-            {feedback.weaknesses.map((weakness, index) => (
-              <li key={index}>{weakness}</li>
-            ))}
-          </ul>
-        </AccordionContent>
-      </AccordionItem>
+        <AccordionItem value="item-2">
+          <AccordionTrigger className="text-[orange]">Weaknesses</AccordionTrigger>
+          <AccordionContent className="bg-[#D3D3D3] px-2.5 py-1.5">
+            <ul className="list-disc list-inside space-y-1.5 text-balance">
+              {feedback.weaknesses.map((weakness, index) => (
+                <li key={index}>{weakness}</li>
+              ))}
+            </ul>
+          </AccordionContent>
+        </AccordionItem>
 
-      <AccordionItem value="item-3">
-        <AccordionTrigger>Improvements</AccordionTrigger>
-        <AccordionContent>
-          <ul className="list-disc list-inside space-y-1.5 text-balance">
-            {feedback.actionableImprovements.map((improvement, index) => (
-              <li key={index}>{improvement}</li>
-            ))}
-          </ul>
-        </AccordionContent>
-      </AccordionItem>
-    </Accordion>
+        <AccordionItem value="item-3">
+          <AccordionTrigger className="text-[blue]">Improvements</AccordionTrigger>
+          <AccordionContent className="bg-[#D3D3D3] px-2.5 py-1.5">
+            <ul className="list-disc list-inside space-y-1.5 text-balance">
+              {feedback.actionableImprovements.map((improvement, index) => (
+                <li key={index}>{improvement}</li>
+              ))}
+            </ul>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </div>
   );
 };
 

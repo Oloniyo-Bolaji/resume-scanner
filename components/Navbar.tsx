@@ -5,10 +5,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSession } from "next-auth/react";
 import { Button } from "./ui/button";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const Navbar = () => {
   const { data: session } = useSession();
   const user = session?.user;
+  const router = useRouter();
 
   const initials =
     user?.name &&
@@ -18,6 +20,13 @@ const Navbar = () => {
       .join("")
       .toUpperCase();
 
+  const handleLogin = () => {
+    router.push("/login");
+  };
+
+  const handleSignUp = () => {
+    router.push("/signup");
+  };
   return (
     <nav className="bg-slate-50/90 rounded-2xl py-2.5 px-5 flex justify-between items-center">
       <Link href="/">YourResumeScanner</Link>
@@ -32,8 +41,10 @@ const Navbar = () => {
         </Avatar>
       ) : (
         <div className="flex gap-2.5">
-          <Button variant="outline">Login</Button>
-          <Button>Signup</Button>
+          <Button variant="outline" onClick={handleLogin}>
+            Login
+          </Button>
+          <Button onClick={handleSignUp}>Signup</Button>
         </div>
       )}
     </nav>

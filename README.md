@@ -1,84 +1,211 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# YourResumeScanner 🦷
 
-## Getting Started
+> An AI-powered résumé scanner that instantly checks your résumé against job descriptions, and gives you actionable insights to boost your chances of getting hired.
 
-First, run the development server:
+[Live Demo](https://yourresumescanner.vercel.app)
+
+## 📋 Table of Contents
+
+- [About The Project](#-about-the-project)
+- [Features](#-features)
+- [Built With](#️-built-with)
+- [Getting Started](#-getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Environment Variables](#environment-variables)
+- [Usage](#-usage)
+- [Roadmap](#️-roadmap)
+- [License](#-license)
+- [Acknowledgments](#-acknowledgments)
+
+## 🎯 About The Project
+
+![YourResumeScanner Screenshot](public/screenshot.png)
+
+**YourResumeScanner** is an AI-powered oral health companion that makes dental care information accessible to everyone. Whether you're curious about different types of teeth, seeking advice on dental hygiene, or have questions about oral health conditions, yourresumescanner provides instant, accurate, and easy-to-understand responses.
+
+## ✨ Features
+
+- 🚀 **Lightning-Fast Responses** - Powered by Groq's ultra-fast inference
+- 🎨 **Modern UI/UX** - Clean, responsive design with smooth animations
+- 📱 **Mobile Optimized** - Seamless experience across all devices
+- 📊 **Rich Formatting** - Beautiful markdown rendering with tables and lists
+- 🔐 **Secure Authentication** - Google OAuth integration via NextAuth
+- ♿ **Accessible** - Built with accessibility best practices
+
+## 🛠️ Built With
+
+### Core Technologies
+
+- **[Next.js 15](https://nextjs.org/)** - React framework with App Router
+- **[React 18](https://reactjs.org/)** - UI library
+- **[TypeScript](https://www.typescriptlang.org/)** - Type Safety
+- **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first styling
+- **[ShadCN/UI](https://ui.shadcn.com/)** - UI Library 
+
+
+### Backend & Database
+
+- **[PostgreSQL](https://www.postgresql.org/)** - Relational database
+- **[Drizzle](https://orm.drizzle.team/docs/overview)** - Database ORM
+- **[Vercel](https://vercel.com/)** - Hosting & deployment
+
+### APIs & Integrations
+
+- **[Groq API](https://groq.com/)** - AI language model (Llama 3.3 70B)
+- **[NextAuth.js](https://next-auth.js.org/)** - Authentication
+- **[Google Cloud Console](https://console.cloud.google.com/)** - Social login
+
+### UI Libraries
+
+- **[Lucide React](https://lucide.dev/guide/packages/lucide-react)** - Icon library
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+Ensure you have the following installed:
+
+```bash
+# Node.js v18 or higher
+node --version  # Should be >= 18.0.0
+
+# npm or yarn
+npm --version   # or
+yarn --version
+
+# Git
+git --version
+```
+
+### Installation
+
+1. **Clone the repository**
+
+```bash
+git clone https://github.com/Oloniyo-Bolaji/yourresumescanner.git
+cd yourresumescanner
+```
+
+2. **Install dependencies**
+
+```bash
+npm install
+# or
+yarn install
+# or
+pnpm install
+```
+
+3. **Set up your database**
+
+```bash
+# If using Prisma
+npx drizzle-kit generate
+npx drizzle-kit push
+```
+
+4. **Configure environment variables** (see below)
+
+5. **Start the development server**
 
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+6. **Open your browser**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Navigate to [http://localhost:3000](http://localhost:3000)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Environment Variables
 
-## Learn More
+Create a `.env.local` file in the root directory:
 
-To learn more about Next.js, take a look at the following resources:
+```env
+# Database
+DATABASE_URL="postgresql://username:password@localhost:5432/yourresumescanner?schema=public"
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# NextAuth Configuration
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="your-nextauth-secret-here"  # Generate: openssl rand -base64 32
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Google OAuth (from Google Cloud Console)
+GOOGLE_CLIENT_ID="your-google-client-id.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
 
-## Deploy on Vercel
+# Groq API
+GROQ_API_KEY="gsk_your_groq_api_key_here"
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# Optional: App Configuration
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+NODE_ENV="development"
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Getting API Keys
 
-const res = await fetch(`/api/chat?userId=${userId}`);
-        const data = await res.json();
+#### 1. **Groq API Key**
 
-            console.log(formData);
-  const [alert, setAlert] = useState<AlertProps | null>(null);
-  setAlert({
-        icon: <Ban />,
-        title: "Error",
-        message: "You must be signed in to create a room",
-      });
+- Visit [console.groq.com](https://console.groq.com)
+- Sign up or log in
+- Navigate to API Keys
+- Create a new API key
+- Copy and paste into `.env.local`
 
-      
-  useEffect(() => {
-    if (alert) {
-      const timer = setTimeout(() => {
-        setAlert(null);
-      }, 3000); // 4 seconds
-      return () => clearTimeout(timer);
-    }
-  }, [alert]);
+#### 2. **Google OAuth Credentials**
+
+- Go to [Google Cloud Console](https://console.cloud.google.com)
+- Create a new project or select existing
+- Enable Google+ API
+- Go to **Credentials** → **Create Credentials** → **OAuth 2.0 Client ID**
+- Application type: **Web application**
+- Add authorized JavaScript origins:
+  - `http://localhost:3000`
+- Add authorized redirect URIs:
+  - `http://localhost:3000/api/auth/callback/google`
+- Copy Client ID and Client Secret to `.env.local`
+
+#### 3. **NextAuth Secret**
+
+```bash
+# Generate a secure random string
+openssl rand -base64 32
+```
+
+## 💻 Usage
+
+1. Open yourresumescanner in your browser
+2. Sign in with your Google account/email and password
+3. Fill in the required details if available and Uplaod resume
+4. Get instant AI-powered responses with beautiful formatting and interface
+
+## 🗺️ Roadmap
+
+### Completed ✅
+
+- [x] Core chat functionality with Groq AI
+- [x] Google OAuth authentication
+- [x] Responsive mobile design
+
+### Planned 📅
+
+- [ ] 
+- [ ] 
 
 
- <button
-                          onClick={(e) => {
-                            e.stopPropagation(); // Prevent opening file browser
-                            if (!isUploaded) {
-                              startUpload([file]); // startUpload expects an array
-                            }
-                          }}
-                          disabled={isUploading || isUploaded}
-                          className={`px-4 py-2 rounded-md transition-colors flex items-center gap-2 mx-auto bg-blue ${
-                            isUploaded
-                              ? "bg-green-600 text-white cursor-default"
-                              : "bg-indigo-600 text-white hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                          }`}
-                        >
-                          {isUploading ? (
-                            "Uploading..."
-                          ) : isUploaded ? (
-                            <>
-                              <Check size={16} />
-                              Uploaded
-                            </>
-                          ) : (
-                            "Upload Resume"
-                          )}
-                        </button>
+## 📄 License
+
+Distributed under the MIT License. See `LICENSE` file for more information.
+
+Website: [https://yourresumescanner.vercel.app](https://yourresumescanner.vercel.app)
+
+## 🙏 Acknowledgments
+
+Special thanks to these amazing resources:
+
+- **[Groq](https://groq.com/)** - Lightning-fast AI inference engine
+- **[Next.js](https://nextjs.org/)** - The React framework for production
+- **[Vercel](https://vercel.com/)** - Seamless deployment platform
+- **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
+- **[NextAuth.js](https://next-auth.js.org/)** - Authentication made simple

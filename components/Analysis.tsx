@@ -1,5 +1,6 @@
 import { CategoryScore } from "@/types";
 import React from "react";
+import ProgressBar from "./ProgressBar";
 
 interface AnalysisProps {
   categoryScores: {
@@ -13,67 +14,72 @@ interface AnalysisProps {
 
 const Analysis = ({ categoryScores }: AnalysisProps) => {
   return (
-    <div className="grid grid-cols-2 gap-3 mt-3">
-      <div>
-        <h4 className="font-semibold">Formatting</h4>
-        <p>Score: {categoryScores.formatting.score}</p>
-        <p>{categoryScores.formatting.feedback}</p>
-        <h6>Suggestions</h6>
-        <ul>
-          {categoryScores.formatting.suggestions.map((suggestion, index) => {
-            return <li key={index}>{suggestion}</li>;
-          })}
-        </ul>
-      </div>
+    <section>
+      <h1 className="font-bold text-base lg:text-2xl">Feedback Overview</h1>
+      <div className="flex flex-col gap-2.5 text-sm">
 
-      <div>
-        <h4 className="font-semibold">Content</h4>
-        <p>Score: {categoryScores.content.score}</p>
-        <p>{categoryScores.content.feedback}</p>
-        <h6>Suggestions</h6>
-        <ul>
-          {categoryScores.content.suggestions.map((suggestion, index) => {
-            return <li key={index}>{suggestion}</li>;
-          })}
-        </ul>
-      </div>
+        <div className="flex flex-col gap-1.5">
+          <h4 className="font-semibold">Formatting</h4>
+          <ProgressBar score={categoryScores.formatting.score} />
+          <p>{categoryScores.formatting.feedback}</p>
+          <h6 className="font-medium italic">Suggestions</h6>
+          <ul className="list-disc list-inside space-y-1.5 text-balance">
+            {categoryScores.formatting.suggestions.map((suggestion, index) => {
+              return <li key={index}>{suggestion}</li>;
+            })}
+          </ul>
+        </div>
 
-      <div>
-        <h4 className="font-semibold">Experience</h4>
-        <p>Score: {categoryScores.experience.score}</p>
-        <p>{categoryScores.experience.feedback}</p>
-        <h6>Suggestions</h6>
-        <ul>
-          {categoryScores.experience.suggestions.map((suggestion, index) => {
-            return <li key={index}>{suggestion}</li>;
-          })}
-        </ul>
-      </div>
+        <div className="flex flex-col gap-1.5">
+          <h4 className="font-semibold">Content</h4>
+          <ProgressBar score={categoryScores.content.score} />
+          <p>{categoryScores.content.feedback}</p>
+          <h6 className="font-medium italic">Suggestions</h6>
+          <ul className="list-disc list-inside space-y-1.5 text-balance">
+            {categoryScores.content.suggestions.map((suggestion, index) => {
+              return <li key={index}>{suggestion}</li>;
+            })}
+          </ul>
+        </div>
 
-      <div>
-        <h4 className="font-semibold">Skills</h4>
-        <p>Score: {categoryScores.skills.score}</p>
-        <p>{categoryScores.skills.feedback}</p>
-        <h6>Suggestions</h6>
-        <ul>
-          {categoryScores.skills.suggestions.map((suggestion, index) => {
-            return <li key={index}>{suggestion}</li>;
-          })}
-        </ul>
-      </div>
+        <div className="flex flex-col gap-1.5">
+          <h4 className="font-semibold">Experience</h4>
+          <ProgressBar score={categoryScores.experience.score} />
+          <p>{categoryScores.experience.feedback}</p>
+          <h6 className="font-medium italic">Suggestions</h6>
+          <ul className="list-disc list-inside space-y-1.5 text-balance">
+            {categoryScores.experience.suggestions.map((suggestion, index) => {
+              return <li key={index}>{suggestion}</li>;
+            })}
+          </ul>
+        </div>
 
-      <div>
-        <h4 className="font-semibold">Impact</h4>
-        <p>Score: {categoryScores.impact.score}</p>
-        <p>{categoryScores.impact.feedback}</p>
-        <h6>Suggestions</h6>
-        <ul>
-          {categoryScores.impact.suggestions.map((suggestion, index) => {
-            return <li key={index}>{suggestion}</li>;
-          })}
-        </ul>
+        <div className="flex flex-col gap-1.5">
+          <h4 className="font-semibold">Skills</h4>
+          <ProgressBar score={categoryScores.skills.score} />
+          <p>{categoryScores.skills.feedback}</p>
+          <h6 className="font-medium italic">Suggestions</h6>
+          <ul className="list-disc list-inside space-y-1.5 text-balance">
+            {categoryScores.skills.suggestions.map((suggestion, index) => {
+              return <li key={index}>{suggestion}</li>;
+            })}
+          </ul>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <h4 className="font-semibold">Impact</h4>
+          <ProgressBar score={categoryScores.impact.score} />
+          <p>{categoryScores.impact.feedback}</p>
+          <h6 className="font-medium italic">Suggestions</h6>
+          <ul className="list-disc list-inside space-y-1.5 text-balance">
+            {categoryScores.impact.suggestions.map((suggestion, index) => {
+              return <li key={index}>{suggestion}</li>;
+            })}
+          </ul>
+        </div>
+        
       </div>
-    </div>
+    </section>
   );
 };
 

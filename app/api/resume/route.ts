@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
-//import { db } from "@/lib/database";
-//import { resumeScansTable } from "@/lib/database/schema";
-import { processImagesForStorage } from "@/lib/server/image";
+
 
 // Initialize Groq with API key
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
@@ -102,21 +100,6 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
-    const processedImages = await processImagesForStorage(imagePaths, id);
-
-    if (processedImages.length === 0) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Failed to process resume images. Please try again.",
-        },
-        { status: 400 }
-      );
-    }
-
-    console.log(`Successfully processed ${processedImages.length} images`);
-
-    //const imagePathStrings = processedImages.map((img) => img.url);
 
     // Create the prompt for AI analysis
     const jobInfo = `
