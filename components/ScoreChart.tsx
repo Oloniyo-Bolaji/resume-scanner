@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { ChartConfig, ChartContainer } from "@/components/ui/chart"
 
 interface ChartRadialShapeProps {
-  score: number // Pass in the resume score (0–100)
+  score: number 
 }
 
 const chartConfig = {
@@ -15,7 +15,6 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export function ChartRadialShape({ score }: ChartRadialShapeProps) {
-  // Clamp score to max 100 for safety
   const safeScore = Math.min(Math.max(score, 0), 100)
 
   const chartData = [
@@ -27,7 +26,7 @@ export function ChartRadialShape({ score }: ChartRadialShapeProps) {
       <CardContent className="flex-1 pb-0">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square max-h-[250px]"
+          className="w-[300px] h-[300px]" // ✅ Add explicit size
         >
           <RadialBarChart
             data={chartData}
@@ -65,7 +64,7 @@ export function ChartRadialShape({ score }: ChartRadialShapeProps) {
                           y={viewBox.cy}
                           className="fill-foreground text-4xl font-bold"
                         >
-                          {safeScore}%
+                          {safeScore}
                         </tspan>
                         <tspan
                           x={viewBox.cx}

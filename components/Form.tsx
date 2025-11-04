@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
-
+import React, { useCallback, useEffect, useState } from "react";
 import { z } from "zod";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
@@ -16,26 +15,43 @@ import {
 } from "./ui/select";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
-import ResumeUploader from "./Uploader";
-import { FormsData } from "@/types";
+import { AlertProps, FormsData } from "@/types";
 import Image from "next/image";
+import { convertPDFToImages } from "@/lib/convertPdfToImage";
+import { useDropzone } from "react-dropzone";
+import { Ban, FileUp, X } from "lucide-react";
+import Alerts from "./AlertCard";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 {
-  /**zod schema for user details */
+  /**zod schema for experience level */
 }
 const levelEnum = z.enum(["Entry level", "Mid Level", "Senior Level"]);
 
 const Form = () => {
+  const router = useRouter();
+  const { data: session } = useSession();
+
+  {
+    /**States */
+  }
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<string>("");
+  const [alert, setAlert] = useState<AlertProps | null>(null);
   const [formData, setFormData] = useState<FormsData>({
+    company: "",
     jobTitle: "",
     jobDescription: "",
     experienceLevel: "",
-    resumeUrl: "",
+    resume: undefined,
     imagePaths: [],
   });
+  const userId = session?.user?.id;
 
+  {
+    /**Function for handling input changes */
+  }
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -43,28 +59,170 @@ const Form = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  {
+    /**Function for handling select change */
+  }
   const handleSelectChange = (value: string) => {
     setFormData((prev) => ({ ...prev, experienceLevel: value }));
   };
 
+  {
+    /**Function for file selection, both select and drop */
+  }
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    if (acceptedFiles.length > 0) {
+      const file = acceptedFiles[0];
+
+      // Optional: Validate file type and size
+      if (file.type !== "application/pdf") {
+        setAlert({
+          icon: <Ban />,
+          title: "Error",
+          message: "Please upload a PDF file",
+        });
+        return;
+      }
+
+      if (file.size > 4 * 1024 * 1024) {
+        // 4MB limit
+        setAlert({
+          icon: <Ban />,
+          title: "Error",
+          message: "File size must be less than 4MB",
+        });
+        return;
+      }
+
+      setFormData((prev) => ({ ...prev, resume: file }));
+    }
+  }, []);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      "application/pdf": [".pdf"],
+    },
+    maxSize: 4 * 1024 * 1024, // 4MB
+    multiple: false, // Only allow single file
+  });
+
+  {
+    /**Function for file un-select */
+  }
+  const handleRemoveFile = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setFormData((prev) => ({ ...prev, resume: undefined }));
+  };
+
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!formData.resumeUrl) {
-      alert("Please upload a Resume to scan");
+    if (!formData.resume) {
+      setAlert({
+        icon: <Ban />,
+        title: "Error",
+        message: "Please upload a Resume to scan",
+      });
       return;
     }
     setLoading(true);
-    setStatus("Uploading your resume...");
+    setStatus("Uploading resume...");
 
-    console.log(formData);
-    // Your submission logic here
+    const images = await convertPDFToImages(formData.resume);
+
+    if (images) {
+      setStatus("Processing resume...");
+      const id = crypto.randomUUID();
+      if (!session?.user?.id) {
+        setAlert({
+          icon: <Ban />,
+          title: "Authentication Required",
+          message: "Please sign in to analyze your resume",
+        });
+        return;
+      }
+      const updatedFormData = {
+        id: id,
+        company: formData.company,
+        jobTitle: formData.jobTitle,
+        jobDescription: formData.jobDescription,
+        experienceLevel: formData.experienceLevel,
+        resume: formData.resume,
+        resume_name: formData.resume?.name,
+        imagePaths: images,
+      };
+
+      setFormData(updatedFormData);
+      // Send to backend immediately with the updated data
+      try {
+        setStatus("Analyzing Resume...");
+        const response = await fetch("/api/resume", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userId, data: updatedFormData }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to submit");
+        }
+
+        const result = await response.json();
+        if (result.success) {
+          console.log("Success:", result);
+          setStatus("Processing Feedback, Reirecting...");
+
+          // Store data in sessionStorage with a unique key
+          const storageKey = `resumeAnalysis_${id}`;
+          sessionStorage.setItem(
+            storageKey,
+            JSON.stringify({
+              analysis: result.data,
+              images: updatedFormData.imagePaths,
+              id: id,
+              timestamp: new Date().toISOString(),
+            })
+          );
+
+          // Navigate to results page with the scan ID
+          router.push(`/resume-review?id=${id}`);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        setStatus("Error submitting form");
+        setAlert({
+          icon: <Ban />,
+          title: "Error",
+          message: "Failed to submit. Please try again.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      //what should happen if it doesnt convert pdf to image
+      setLoading(false);
+      setAlert({
+        icon: <Ban />,
+        title: "Error",
+        message: "Failed to convert PDF to images",
+      });
+    }
   };
+
+  useEffect(() => {
+    if (alert) {
+      const timer = setTimeout(() => {
+        setAlert(null);
+      }, 3000); // 4 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [alert]);
 
   return (
     <div className="w-full mt-3">
       {loading ? (
         <div className="flex flex-col justify-center items-center">
-          <p className="mt-3 text-sm md:text-base text-slate-600 max-w-2xl">
+          <p className="mt-3 text-base md:text-2xl text-slate-600 max-w-2xl">
             {status}
           </p>
           <Image
@@ -84,6 +242,17 @@ const Form = () => {
                 name="jobTitle"
                 placeholder="e.g Frontend Developer"
                 value={formData.jobTitle}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="company">Company Name</Label>
+              <Input
+                id="company"
+                name="company"
+                placeholder="e.g Google"
+                value={formData.company}
                 onChange={handleChange}
               />
             </div>
@@ -124,17 +293,58 @@ const Form = () => {
 
             <div className="grid gap-2">
               <Label>Resume</Label>
-              <ResumeUploader
+              {/*<ResumeUploader
                 onUploadComplete={(url) =>
                   setFormData((prev) => ({ ...prev, resumeUrl: url }))
                 }
                 onUploadError={() => alert("Resume upload failed")}
-              />
+              />*/}
+              <div className="w-full">
+                <div
+                  {...getRootProps()}
+                  className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-indigo-500 transition-colors"
+                >
+                  <input {...getInputProps()} />
+                  <div>
+                    {formData.resume ? (
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                          <Image
+                            src="/pdflogo.jpg"
+                            alt="logo"
+                            width={20}
+                            height={20}
+                          />
+                          <p className="text-sm text-gray-600">
+                            {formData.resume.name}
+                          </p>
+                          <button onClick={handleRemoveFile}>
+                            <X className="opacity-50" />
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col justify-center items-center gap-2.5">
+                        <FileUp size={40} className="animate-pulse" />
+                        <p className="text-gray-700">
+                          Drag and drop your resume here
+                        </p>
+                        <p className="text-sm text-gray-500 mt-2">
+                          or click to browse (PDF only, max 4MB)
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
 
             <Button type="submit">Analyze My Resume</Button>
           </div>
         </form>
+      )}
+      {alert && (
+        <Alerts icon={alert.icon} message={alert.message} title={alert.title} />
       )}
     </div>
   );

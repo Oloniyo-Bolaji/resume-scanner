@@ -13,15 +13,20 @@ export type AlertProps = {
   message: string;
 };
 
+interface images {
+  url: string;
+  pageNumber: number;
+}
 export type FormsData = {
+  company: string;
   jobTitle: string;
   jobDescription: string;
   experienceLevel: string;
-  resumeUrl?: string;
-  imagePaths?: Array<string>;
+  resume?: File;
+  imagePaths?: images[];
 };
 
-interface CategoryScore {
+export interface CategoryScore {
   score: number; // 0-100
   feedback: string;
   suggestions: string[];
@@ -44,3 +49,10 @@ export type FeedbackProps = {
     actionableImprovements: string[];
   };
 };
+
+export type  AnalysisData = {
+  analysis: FeedbackProps;
+  images: images[];
+  id?: string;
+  timestamp?: string;
+}

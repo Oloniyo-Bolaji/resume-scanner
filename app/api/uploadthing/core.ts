@@ -29,4 +29,13 @@ export const ourFileRouter = {
     }),
 } satisfies FileRouter;
 
+export const config = {
+  api: {
+    bodyParser: false,
+    responseLimit: false,
+  },
+  // Increase timeout
+  maxDuration: 30,
+};
+
 export type OurFileRouter = typeof ourFileRouter;

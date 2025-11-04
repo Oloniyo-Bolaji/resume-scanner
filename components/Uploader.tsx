@@ -1,5 +1,5 @@
 import { useDropzone } from "@uploadthing/react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   generateClientDropzoneAccept,
   generatePermittedFileTypes,
@@ -7,7 +7,9 @@ import {
 
 import { useUploadThing } from "@/src/utils/useUploadThingHook";
 import Image from "next/image";
-import { Check, FileUp, X } from "lucide-react";
+import { Ban, Check, FileUp, X } from "lucide-react";
+import Alerts from "./AlertCard";
+import { AlertProps } from "@/types";
 
 interface ResumeUploaderProps {
   onUploadComplete: (url: string) => void;
@@ -20,6 +22,7 @@ const ResumeUploader = ({
 }: ResumeUploaderProps) => {
   const [file, setFile] = useState<File | null>(null);
   const [isUploaded, setIsUploaded] = useState(false);
+  const [alert, setAlert] = useState<AlertProps | null>(null);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     // Only take the first file
@@ -37,12 +40,21 @@ const ResumeUploader = ({
         if (res && res[0]?.ufsUrl) {
           setIsUploaded(true);
           onUploadComplete(res[0].ufsUrl);
+          setAlert({
+          icon: <Ban />,
+          title: "Success",
+          message: "Resume Uploaded, Click 'Analyze Resume' to continue",
+        });
         }
       },
       onUploadError: () => {
         setIsUploaded(false);
         onUploadError?.();
-        alert("error occurred while uploading");
+        setAlert({
+          icon: <Ban />,
+          title: "Error",
+          message: "Error occurred while uploading. Try Again",
+        });
       },
       onUploadBegin: (fileName) => {
         console.log("upload has begun for", fileName);
@@ -63,6 +75,15 @@ const ResumeUploader = ({
     e.stopPropagation();
     setFile(null);
   };
+
+  useEffect(() => {
+    if (alert) {
+      const timer = setTimeout(() => {
+        setAlert(null);
+      }, 3000); 
+      return () => clearTimeout(timer);
+    }
+  }, [alert]);
 
   return (
     <div className="w-full">
@@ -119,6 +140,9 @@ const ResumeUploader = ({
           )}
         </div>
       </div>
+      {alert && (
+        <Alerts icon={alert.icon} message={alert.message} title={alert.title} />
+      )}
     </div>
   );
 };
