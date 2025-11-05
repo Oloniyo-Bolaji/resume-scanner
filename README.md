@@ -1,4 +1,4 @@
-# YourResumeScanner 🦷
+# YourResumeScanner 
 
 > An AI-powered résumé scanner that instantly checks your résumé against job descriptions, and gives you actionable insights to boost your chances of getting hired.
 
