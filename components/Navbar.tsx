@@ -25,15 +25,11 @@ const Navbar = () => {
     router.push("/login");
   };
 
-  const handleSignUp = () => {
-    router.push("/signup");
-  };
-
   //Link and avatar display, if user is signed in and has and image(Google Authentication) display image else their name initials and if session doesnt exist, display authentication buttons
   
   return (
     <nav className="nav rounded-2xl py-2.5 px-5 flex justify-between items-center">
-      <Link href="/" className="font-bold uppercase text-sm text-[#003285]">
+      <Link href="/" className="font-bold uppercase sm:text-sm text-xs text-[#003285]">
         YourResumeScanner
       </Link>
 
@@ -50,7 +46,6 @@ const Navbar = () => {
           <Button variant="outline" onClick={handleLogin}>
             Login
           </Button>
-          <Button onClick={handleSignUp}>Signup</Button>
         </div>
       )}
     </nav>

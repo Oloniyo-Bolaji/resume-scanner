@@ -298,7 +298,7 @@ const Form = () => {
                     {formData.resume ? (
                       <div className="space-y-4">
                         <div className="flex justify-between items-center">
-                          <div className="relative w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-5 md:h-5">
+                          <div className="relative w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 md:w-5 md:h-5">
                             <Image
                               src="/pdflogo.jpg"
                               alt="logo"
