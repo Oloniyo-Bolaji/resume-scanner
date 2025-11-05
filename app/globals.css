@@ -140,8 +140,8 @@
 @utility bg-gradient {
   @apply bg-gradient-to-br from-[#C4DFFB70] via-[#ffffff] to-[#C4DFFB80];
 }
-.hero-bg {
-  background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.6), transparent 40%),
-              linear-gradient(180deg, #e0f2ff 0%, #f8fbff 100%);
-  background-blend-mode: lighten;
+
+.nav {
+  background: #FBFBFB;
+  box-shadow: inset 20px 20px 60px #d9d9d9, inset -20px -20px 60px #FBFBFB;
 }

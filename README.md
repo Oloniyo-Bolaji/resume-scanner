@@ -1,4 +1,4 @@
-# YourResumeScanner 
+# YourResumeScanner
 
 > An AI-powered résumé scanner that instantly checks your résumé against job descriptions, and gives you actionable insights to boost your chances of getting hired.
 
@@ -41,8 +41,7 @@
 - **[React 18](https://reactjs.org/)** - UI library
 - **[TypeScript](https://www.typescriptlang.org/)** - Type Safety
 - **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first styling
-- **[ShadCN/UI](https://ui.shadcn.com/)** - UI Library 
-
+- **[ShadCN/UI](https://ui.shadcn.com/)** - UI Library
 
 ### Backend & Database
 
@@ -58,7 +57,7 @@
 
 ### UI Libraries
 
-- **[Lucide React](https://lucide.dev/guide/packages/lucide-react)** - Icon library
+- **[Lucide React](https://lucide.dev/icons/)** - Icon library
 
 ## 🚀 Getting Started
 
@@ -190,9 +189,8 @@ openssl rand -base64 32
 
 ### Planned 📅
 
-- [ ] 
-- [ ] 
-
+- [ ]
+- [ ]
 
 ## 📄 License
 

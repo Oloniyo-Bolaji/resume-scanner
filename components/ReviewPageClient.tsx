@@ -9,7 +9,7 @@ const ReviewPage = () => {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
 
-  // Read and parse data directly - no state needed!
+  // Read and parse data directly
   const { analysisData, error, loading } = useMemo(() => {
     if (!id) {
       return {
@@ -52,7 +52,7 @@ const ReviewPage = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#003285] mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading your results...</p>
         </div>
       </div>
@@ -78,24 +78,25 @@ const ReviewPage = () => {
   }
 
   const gradeScore = (value: number) => {
-    if (value >= 90) return "A+";
-    if (value >= 75) return "A";
-    if (value >= 60) return "B";
-    if (value >= 50) return "C";
-    if (value >= 40) return "D";
-    return "F";
+    if (value >= 90) return "Your resume got an A+";
+    if (value >= 75) return "Your resume got an A";
+    if (value >= 60) return "Your resume got a B";
+    if (value >= 55) return "Your resume got a C";
+    if (value >= 40) return "Your resume got a D";
+    if (value >= 35) return "Your resume got an E";
+    return "Your resume got a F";
   };
 
   const { analysis, images } = analysisData;
 
   return (
-    <main className="bg-gradient lg:px-20 sm:px-10 px-2.5">
-      <div className="flex flex-col items-center justify-center pt-20 text-center">
-        <h1 className="text-3xl md:text-5xl font-bold max-w-3xl leading-tight">
-          YourResumeSanner Review
+    <main className="lg:px-20 sm:px-10 px-2.5">
+      <div className="flex flex-col items-center justify-center pt-15 text-center">
+        <h1 className="text-2xl md:text-4xl font-bold max-w-3xl leading-tight text-[#003285]">
+          YourResumeScanner Review
         </h1>
         <p className="my-3 text-sm md:text-base text-slate-600 max-w-2xl">
-          Your Resume scored a {gradeScore(analysis.overallScore)}
+          {gradeScore(analysis.overallScore)}
         </p>
       </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,11 +13,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import GoogleIcon from "@/lib/icons/google";
-import { User } from "@/types";
+import { AlertProps, User } from "@/types";
 import Divider from "@/components/Divider";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Alerts from "@/components/AlertCard";
+import { Check, ShieldAlert } from "lucide-react";
 
 const Page = () => {
   const [userDetails, setUserDetails] = useState<User>({
@@ -27,8 +29,10 @@ const Page = () => {
     confirmPassword: "",
   });
   const [loading, setLoading] = useState(false);
+  const [alert, setAlert] = useState<AlertProps | null>(null);
+
   const router = useRouter();
-  
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setUserDetails((prev) => ({ ...prev, [name]: value }));
@@ -38,12 +42,20 @@ const Page = () => {
     e.preventDefault();
     // Validation
     if (userDetails.password !== userDetails.confirmPassword) {
-      alert("Passwords don't match");
+      setAlert({
+        icon: <ShieldAlert />,
+        title: "Error",
+        message: "Passwords don't match",
+      });
       return;
     }
 
     if (userDetails.password.length < 6) {
-      alert("Password must be at least 6 characters long");
+      setAlert({
+        icon: <ShieldAlert />,
+        title: "Error",
+        message: "Password must be at least 6 characters long",
+      });
       return;
     }
     setLoading(true);
@@ -63,7 +75,11 @@ const Page = () => {
       if (!res.ok || !data.success) {
         throw new Error(data.error || "Something went wrong");
       }
-      alert("Account created successfully! Please sign in.");
+      setAlert({
+        icon: <Check />,
+        title: "Success",
+        message: "Account created successfully! Please sign in.",
+      });
       router.push("/login");
     } catch (err) {
       console.error("Create failed:", err);
@@ -76,15 +92,31 @@ const Page = () => {
     try {
       await signIn("google", { callbackUrl: "/dashboard" });
     } catch (error) {
-      alert("Failed to sign up with Google");
+      setAlert({
+        icon: <ShieldAlert />,
+        title: "Success",
+        message: "Failed to sign up with Google",
+      });
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    if (alert) {
+      const timer = setTimeout(() => {
+        setAlert(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [alert]);
+
   return (
-    <div className="h-screen flex justify-center items-center bg-gradient">
+    <div className="h-screen flex justify-center items-center">
       <Card className="w-full max-w-sm px-2.5">
         <CardHeader>
-          <CardTitle>Sign up for YourResumeScanner</CardTitle>
+          <CardTitle className="text-[#003285]">
+            Sign up for YourResumeScanner
+          </CardTitle>
           <CardDescription>Enter your email below to sign up</CardDescription>
         </CardHeader>
         <CardContent>
@@ -177,6 +209,9 @@ const Page = () => {
           </div>
         </CardFooter>
       </Card>
+      {alert && (
+        <Alerts icon={alert.icon} message={alert.message} title={alert.title} />
+      )}
     </div>
   );
 };

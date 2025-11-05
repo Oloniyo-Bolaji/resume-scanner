@@ -24,19 +24,16 @@ import Alerts from "./AlertCard";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
-{
-  /**zod schema for experience level */
-}
+//zod schema for experience level
+
 const levelEnum = z.enum(["Entry level", "Mid Level", "Senior Level"]);
 
 const Form = () => {
   const router = useRouter();
   const { data: session } = useSession();
 
-  {
-    /**States */
-  }
-  const [loading, setLoading] = useState(false);
+  //States
+  const [loading, setLoading] = useState<boolean>(false);
   const [status, setStatus] = useState<string>("");
   const [alert, setAlert] = useState<AlertProps | null>(null);
   const [formData, setFormData] = useState<FormsData>({
@@ -49,9 +46,7 @@ const Form = () => {
   });
   const userId = session?.user?.id;
 
-  {
-    /**Function for handling input changes */
-  }
+  //Function for handling input changes
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -59,21 +54,17 @@ const Form = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  {
-    /**Function for handling select change */
-  }
+  //Function for handling select change
   const handleSelectChange = (value: string) => {
     setFormData((prev) => ({ ...prev, experienceLevel: value }));
   };
 
-  {
-    /**Function for file selection, both select and drop */
-  }
+  //Function for file selection, both select and drop usin react-dropzone
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
       const file = acceptedFiles[0];
 
-      // Optional: Validate file type and size
+      //Validate file type and size
       if (file.type !== "application/pdf") {
         setAlert({
           icon: <Ban />,
@@ -106,16 +97,16 @@ const Form = () => {
     multiple: false, // Only allow single file
   });
 
-  {
-    /**Function for file un-select */
-  }
+  //Function to un-select file
   const handleRemoveFile = (e: React.MouseEvent) => {
     e.stopPropagation();
     setFormData((prev) => ({ ...prev, resume: undefined }));
   };
 
+  //Function for file submit
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     if (!formData.resume) {
       setAlert({
         icon: <Ban />,
@@ -147,12 +138,11 @@ const Form = () => {
         jobDescription: formData.jobDescription,
         experienceLevel: formData.experienceLevel,
         resume: formData.resume,
-        resume_name: formData.resume?.name,
         imagePaths: images,
       };
 
       setFormData(updatedFormData);
-      // Send to backend immediately with the updated data
+      // Send to backend immediately with the updated data for Groq analysis
       try {
         setStatus("Analyzing Resume...");
         const response = await fetch("/api/resume", {
@@ -170,7 +160,7 @@ const Form = () => {
         const result = await response.json();
         if (result.success) {
           console.log("Success:", result);
-          setStatus("Processing Feedback, Reirecting...");
+          setStatus("Processing Feedback, Re-directing...");
 
           // Store data in sessionStorage with a unique key
           const storageKey = `resumeAnalysis_${id}`;
@@ -184,7 +174,7 @@ const Form = () => {
             })
           );
 
-          // Navigate to results page with the scan ID
+          // Navigate to results page with the ID
           router.push(`/resume-review?id=${id}`);
         }
       } catch (error) {
@@ -204,7 +194,7 @@ const Form = () => {
       setAlert({
         icon: <Ban />,
         title: "Error",
-        message: "Failed to convert PDF to images",
+        message: "Failed to process Resume for analysis",
       });
     }
   };
@@ -213,7 +203,7 @@ const Form = () => {
     if (alert) {
       const timer = setTimeout(() => {
         setAlert(null);
-      }, 3000); // 4 seconds
+      }, 3000);
       return () => clearTimeout(timer);
     }
   }, [alert]);
@@ -222,15 +212,19 @@ const Form = () => {
     <div className="w-full mt-3">
       {loading ? (
         <div className="flex flex-col justify-center items-center">
-          <p className="mt-3 text-base md:text-2xl text-slate-600 max-w-2xl">
+          <p className="mt-3 text-base md:text-xl text-slate-600 max-w-2xl">
             {status}
           </p>
-          <Image
-            src="/scanning-lens.svg"
-            alt="Scanning"
-            width={400}
-            height={400}
-          />
+          <div className="relative w-60 h-60 sm:w-80 sm:h-80 md:w-[400px] md:h-[400px] mt-6">
+            <Image
+              src="/scanning-lens.svg"
+              alt="Scanning"
+              fill
+              className="object-contain"
+              sizes="(max-width: 768px) 80vw, 400px"
+              priority
+            />
+          </div>
         </div>
       ) : (
         <form onSubmit={onSubmit}>
@@ -293,33 +287,32 @@ const Form = () => {
 
             <div className="grid gap-2">
               <Label>Resume</Label>
-              {/*<ResumeUploader
-                onUploadComplete={(url) =>
-                  setFormData((prev) => ({ ...prev, resumeUrl: url }))
-                }
-                onUploadError={() => alert("Resume upload failed")}
-              />*/}
+
               <div className="w-full">
                 <div
                   {...getRootProps()}
-                  className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-indigo-500 transition-colors"
+                  className="border-2 border-dashed border-[#003285] rounded-lg p-8 text-center cursor-pointer hover:border-indigo-500 transition-colors"
                 >
                   <input {...getInputProps()} />
                   <div>
                     {formData.resume ? (
                       <div className="space-y-4">
                         <div className="flex justify-between items-center">
-                          <Image
-                            src="/pdflogo.jpg"
-                            alt="logo"
-                            width={20}
-                            height={20}
-                          />
-                          <p className="text-sm text-gray-600">
+                          <div className="relative w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-5 md:h-5">
+                            <Image
+                              src="/pdflogo.jpg"
+                              alt="logo"
+                              fill
+                              className="object-contain"
+                              sizes="(max-width: 768px) 80vw, 20px"
+                              priority
+                            />
+                          </div>
+                          <p className="text-xs sm:text-sm text-gray-600">
                             {formData.resume.name}
                           </p>
                           <button onClick={handleRemoveFile}>
-                            <X className="opacity-50" />
+                            <X className="opacity-50 text-sm" />
                           </button>
                         </div>
                       </div>
@@ -339,7 +332,7 @@ const Form = () => {
               </div>
             </div>
 
-            <Button type="submit">Analyze My Resume</Button>
+            <Button type="submit">Analyze Resume</Button>
           </div>
         </form>
       )}

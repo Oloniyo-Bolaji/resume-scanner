@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,11 +13,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import GoogleIcon from "@/lib/icons/google";
-import { User } from "@/types";
+import { AlertProps, User } from "@/types";
 import Divider from "@/components/Divider";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Alerts from "@/components/AlertCard";
+import { Check, ShieldAlert } from "lucide-react";
 
 const Page = () => {
   const [user, setUser] = useState<User>({
@@ -25,6 +27,7 @@ const Page = () => {
     password: "",
   });
   const [loading, setLoading] = useState(false);
+  const [alert, setAlert] = useState<AlertProps | null>(null);
   const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,35 +47,60 @@ const Page = () => {
       });
 
       if (result?.error) {
-        alert(result.error);
+        setAlert({
+          icon: <ShieldAlert />,
+          title: "Error",
+          message: result.error,
+        });
       } else {
-        alert("Login successful!");
-        router.push("/"); // Redirect to dashboard or home page
+        setAlert({
+          icon: <Check />,
+          title: "Success",
+          message: "Login successful!",
+        });
+        router.push("/");
       }
     } catch (error) {
-      alert("An error occurred during login");
-            console.log(error)
-
+      setAlert({
+        icon: <ShieldAlert />,
+        title: "Error",
+        message: "An error occurred during login, Please try again!",
+      });
+      console.log(error);
     } finally {
       setLoading(false);
     }
   };
 
-
-   const handleGoogleSignIn = async () => {
+  const handleGoogleSignIn = async () => {
     try {
       await signIn("google", { callbackUrl: "/" });
     } catch (error) {
-      alert("Failed to sign in with Google");
-      console.log(error)
+      setAlert({
+        icon: <ShieldAlert />,
+        title: "Error",
+        message: "Failed to sign in with Google, Please try again!",
+      });
+      console.log(error);
     }
   };
 
+  useEffect(() => {
+    if (alert) {
+      const timer = setTimeout(() => {
+        setAlert(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [alert]);
+
   return (
-    <div className="h-screen flex justify-center items-center bg-gradient">
+    <div className="h-screen flex justify-center items-center">
       <Card className="w-full max-w-sm px-2.5">
         <CardHeader>
-          <CardTitle>Login to YourResumeScanner</CardTitle>
+          <CardTitle className="text-[#003285]">
+            Login to YourResumeScanner
+          </CardTitle>
           <CardDescription>
             Enter your email below to login to your account
           </CardDescription>
@@ -90,8 +118,7 @@ const Page = () => {
                   required
                   value={user?.email}
                   onChange={handleChange}
-                                    disabled={loading}
-
+                  disabled={loading}
                 />
               </div>
               <div className="grid gap-2">
@@ -105,13 +132,11 @@ const Page = () => {
                   placeholder="*********"
                   value={user?.password}
                   onChange={handleChange}
-                                    disabled={loading}
-
+                  disabled={loading}
                 />
               </div>
 
-              <Button type="submit"                  disabled={loading}
- className="w-full my-2">
+              <Button type="submit" disabled={loading} className="w-full my-2">
                 {loading ? "Logging in..." : "Login"}
               </Button>
             </div>
@@ -125,19 +150,26 @@ const Page = () => {
           <Button
             variant="outline"
             className="w-full"
-onClick={handleGoogleSignIn}
-            disabled={loading}          >
+            onClick={handleGoogleSignIn}
+            disabled={loading}
+          >
             <GoogleIcon /> Sign up with Google
           </Button>
 
           <div className="flex items-center">
             <p className="text-sm">A new user?</p>
- <Link href="/signup" className="text-sm text-blue-600 hover:underline">
+            <Link
+              href="/signup"
+              className="text-sm text-blue-600 hover:underline"
+            >
               Register
-            </Link>         
-             </div>
+            </Link>
+          </div>
         </CardFooter>
       </Card>
+      {alert && (
+        <Alerts icon={alert.icon} message={alert.message} title={alert.title} />
+      )}
     </div>
   );
 };

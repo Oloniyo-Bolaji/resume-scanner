@@ -12,6 +12,7 @@ const Navbar = () => {
   const user = session?.user;
   const router = useRouter();
 
+  //Creating name initials for placeholder for users avatar
   const initials =
     user?.name &&
     user.name
@@ -27,9 +28,14 @@ const Navbar = () => {
   const handleSignUp = () => {
     router.push("/signup");
   };
+
+  //Link and avatar display, if user is signed in and has and image(Google Authentication) display image else their name initials and if session doesnt exist, display authentication buttons
+  
   return (
-    <nav className="bg-slate-50/90 rounded-2xl py-2.5 px-5 flex justify-between items-center">
-      <Link href="/">YourResumeScanner</Link>
+    <nav className="nav rounded-2xl py-2.5 px-5 flex justify-between items-center">
+      <Link href="/" className="font-bold uppercase text-sm text-[#003285]">
+        YourResumeScanner
+      </Link>
 
       {session ? (
         <Avatar>

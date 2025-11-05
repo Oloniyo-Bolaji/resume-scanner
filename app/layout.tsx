@@ -16,7 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={``}
+        className="bg-gradient-to-r from-[#FFDA78] via-[#FBFBFB] to-[#FAFFAF] font-serif"
       >
         <Providers>{children}</Providers>
       </body>

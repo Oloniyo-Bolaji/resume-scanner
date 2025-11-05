@@ -51,7 +51,6 @@ export async function POST(req: NextRequest) {
       jobDescription,
       experienceLevel,
       resume,
-      resume_name,
       imagePaths,
     } = data;
 
@@ -61,7 +60,6 @@ export async function POST(req: NextRequest) {
       jobTitle: !!jobTitle,
       company: !!company,
       hasResume: !!resume,
-      resumeName: resume_name,
       hasImages: !!imagePaths?.length,
       imageCount: imagePaths?.length || 0,
       jobDescriptionLength: jobDescription?.length || 0,
@@ -124,7 +122,7 @@ Analyze the resume across these 5 dimensions:
 2. Content (clarity, relevance, completeness)
 3. Experience (quality of work history, achievements)
 4. Skills (technical and soft skills presentation)
-5. Impact (quantifiable results, action verbs)
+5. Impact (quantifiable results, action verbs usage)
 
 Also evaluate:
 - Overall quality (0-100 score)
@@ -173,7 +171,7 @@ Provide your analysis in the following EXACT JSON format:
   }
 }
 
-CRITICAL: Return ONLY valid JSON in the exact structure above. No markdown, no code blocks, no additional text. Analyze critically do not be scared to score either low or high, be a bit brutal.`;
+CRITICAL: Return ONLY valid JSON in the exact structure above. No markdown, no code blocks, no additional text. Analyze critically do not be scared to score either low or high, be a bit brutal. As for the summary you will provided be a bit friendly.`;
 
     try {
       const contentArray: Array<

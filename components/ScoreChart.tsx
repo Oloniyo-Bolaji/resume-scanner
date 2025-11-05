@@ -20,7 +20,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function ChartRadialShape({ score }: ChartRadialShapeProps) {
+const ScoreChart = ({ score }: ChartRadialShapeProps) => {
   const safeScore = Math.min(Math.max(score, 0), 100);
 
   const chartData = [
@@ -32,14 +32,14 @@ export function ChartRadialShape({ score }: ChartRadialShapeProps) {
       <CardContent className="p-0 flex items-center justify-center">
         <ChartContainer
           config={chartConfig}
-          className="w-[80px] h-[80px]" // 👈 smaller chart size
+          className="w-[80px] h-[80px]" 
         >
           <RadialBarChart
             data={chartData}
             startAngle={180}
             endAngle={-180}
-            innerRadius={30} // 👈 smaller radius
-            outerRadius={38} // 👈 smaller radius
+            innerRadius={30} 
+            outerRadius={38} 
           >
             <PolarGrid
               gridType="circle"
@@ -91,6 +91,8 @@ export function ChartRadialShape({ score }: ChartRadialShapeProps) {
     </Card>
   );
 }
+
+export default ScoreChart;
 
 // 🎨 Helper: Dynamic color based on score
 function getScoreColor(score: number): string {
