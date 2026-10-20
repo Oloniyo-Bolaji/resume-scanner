@@ -42,7 +42,6 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           # Build the image from the root (where your Dockerfile is)
-          cd client
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
