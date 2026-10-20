@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
 
-
 // Initialize Groq with API key
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-
+let _groq: Groq | null = null;
+function getGroq() {
+  if (!_groq) {
+    _groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+  }
+  return _groq;
+}
 interface CategoryScore {
   score: number;
   feedback: string;
@@ -40,6 +44,7 @@ interface GroqError extends Error {
 }
 
 export async function POST(req: NextRequest) {
+  const groq = getGroq();
   try {
     const { userId, data } = await req.json();
 
@@ -72,7 +77,7 @@ export async function POST(req: NextRequest) {
           success: false,
           error: "Missing resume images. Please upload a resume.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -82,7 +87,7 @@ export async function POST(req: NextRequest) {
           success: false,
           error: "User ID is required.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -95,7 +100,7 @@ export async function POST(req: NextRequest) {
           error:
             "API key not configured. Please set GROQ_API_KEY in your environment variables.",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -204,7 +209,7 @@ CRITICAL: Return ONLY valid JSON in the exact structure above. No markdown, no c
             content: contentArray,
           },
         ],
-        model: "meta-llama/llama-4-scout-17b-16e-instruct",
+        model: "qwen/qwen3.8-27b",
         temperature: 1,
         max_completion_tokens: 4096,
         response_format: { type: "json_object" },
@@ -238,18 +243,18 @@ CRITICAL: Return ONLY valid JSON in the exact structure above. No markdown, no c
           !parsedResponse.feedback
         ) {
           throw new Error(
-            "Invalid response structure from AI - missing required fields"
+            "Invalid response structure from AI - missing required fields",
           );
         }
 
         // Ensure scores are within valid bounds (0-100)
         parsedResponse.overallScore = Math.max(
           0,
-          Math.min(100, Math.round(parsedResponse.overallScore))
+          Math.min(100, Math.round(parsedResponse.overallScore)),
         );
         parsedResponse.atsCompatibility = Math.max(
           0,
-          Math.min(100, Math.round(parsedResponse.atsCompatibility || 0))
+          Math.min(100, Math.round(parsedResponse.atsCompatibility || 0)),
         );
 
         // Validate and normalize category scores
@@ -270,7 +275,7 @@ CRITICAL: Return ONLY valid JSON in the exact structure above. No markdown, no c
           // Normalize score
           categoryScore.score = Math.max(
             0,
-            Math.min(100, Math.round(categoryScore.score))
+            Math.min(100, Math.round(categoryScore.score)),
           );
 
           // Ensure arrays exist
@@ -316,7 +321,7 @@ CRITICAL: Return ONLY valid JSON in the exact structure above. No markdown, no c
                 : "Unknown parse error",
             sample: aiReply.substring(0, 200),
           },
-          { status: 500 }
+          { status: 500 },
         );
       }
       return NextResponse.json({
@@ -392,7 +397,7 @@ CRITICAL: Return ONLY valid JSON in the exact structure above. No markdown, no c
           error: errorMessage,
           details: details,
         },
-        { status: statusCode }
+        { status: statusCode },
       );
     }
   } catch (err: unknown) {
@@ -414,7 +419,7 @@ CRITICAL: Return ONLY valid JSON in the exact structure above. No markdown, no c
         error: "Internal server error",
         details: errorMessage,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -430,6 +435,6 @@ export async function OPTIONS() {
         "Access-Control-Allow-Methods": "POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type",
       },
-    }
+    },
   );
 }

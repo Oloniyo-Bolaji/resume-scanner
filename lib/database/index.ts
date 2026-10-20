@@ -1,11 +1,16 @@
-import { neon } from '@neondatabase/serverless'
-import { drizzle } from 'drizzle-orm/neon-http'
-import { config } from 'dotenv'
-import * as schema from './schema'
+import { neon } from "@neondatabase/serverless";
+import { drizzle, type NeonHttpDatabase } from "drizzle-orm/neon-http";
+import * as schema from "./schema";
 
-config({ path: '.env' })
+let _sql: ReturnType<typeof neon> | null = null;
+let _db: NeonHttpDatabase<typeof schema> | null = null;
 
-const sql = neon(process.env.DATABASE_URL!)
-const db = drizzle(sql, { schema })
-
-export { db }
+export function getDb(): NeonHttpDatabase<typeof schema> {
+  if (!_db) {
+    if (!_sql) {
+      _sql = neon(process.env.DATABASE_URL!);
+    }
+    _db = drizzle(_sql, { schema });
+  }
+  return _db;
+}

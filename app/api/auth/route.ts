@@ -1,4 +1,4 @@
-import { db } from "@/lib/database";
+import { getDb } from "@/lib/database";
 import { usersTable } from "@/lib/database/schema";
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     }
 
     // Check if user already exists
-    const existingUsers = await db
+    const existingUsers = await getDb() 
       .select()
       .from(usersTable)
       .where(eq(usersTable.email, email));
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
     // Hash password and create user
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await db.insert(usersTable).values({
+    await getDb().insert(usersTable).values({
       name: name,
       email: email,
       password: hashedPassword,
