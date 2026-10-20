@@ -174,16 +174,24 @@ resource "aws_iam_policy" "github_deploy" {
           "ecr:UploadLayerPart",
           "ecr:CompleteLayerUpload"
         ]
-        Resource = "*" # GetAuthorizationToken must be *, others can be restricted but simpler this way
+        Resource = "*"
       },
       {
-        # ECS Permissions
+        # ECS Permissions (UPDATED!)
         Effect = "Allow"
         Action = [
+          "ecs:DescribeTaskDefinition", # <--- Added this
+          "ecs:RegisterTaskDefinition", # <--- Added this
           "ecs:UpdateService",
           "ecs:DescribeServices"
         ]
-        Resource = "*" # Can be restricted to your service ARN
+        Resource = "*"
+      },
+      {
+        # IAM Permission (Required to pass the execution role to the new task)
+        Effect = "Allow"
+        Action = "iam:PassRole"
+        Resource = aws_iam_role.execution.arn
       }
     ]
   })
