@@ -2,7 +2,7 @@ import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
-import { db } from "./lib/database";
+import { getDb } from "./lib/database";
 import { usersTable } from "./lib/database/schema";
 import { eq } from "drizzle-orm";
 
@@ -23,7 +23,7 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Email and password are required");
         }
 
-        const user = await db.query.usersTable.findFirst({
+        const user = await getDb().query.usersTable.findFirst({
           where: eq(usersTable.email, credentials.email),
         });
 
@@ -64,12 +64,12 @@ export const authOptions: NextAuthOptions = {
         }
 
         // Check if user exists
-        const existingUser = await db.query.usersTable.findFirst({
+        const existingUser = await getDb().query.usersTable.findFirst({
           where: eq(usersTable.email, user.email),
         });
 
         if (!existingUser) {
-          await db.insert(usersTable).values({
+          await getDb().insert(usersTable).values({
             name: user.name ?? "",
             email: user.email,
             image: user.image ?? "",
@@ -88,7 +88,7 @@ export const authOptions: NextAuthOptions = {
       
       // If token doesn't have an ID yet, fetch it from database using email
       if (!token.id && token.email) {
-        const dbUser = await db.query.usersTable.findFirst({
+        const dbUser = await getDb().query.usersTable.findFirst({
           where: eq(usersTable.email, token.email),
         });
         if (dbUser) {
