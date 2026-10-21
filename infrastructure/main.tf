@@ -16,10 +16,10 @@ resource "aws_security_group" "app" {
   vpc_id      = data.aws_vpc.default.id
 
   ingress {
-    from_port   = 3000
-    to_port     = 3000
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id] 
   }
 
   egress {
@@ -114,6 +114,12 @@ resource "aws_ecs_service" "app" {
     security_groups  = [aws_security_group.app.id]
     assign_public_ip = true
   }
+
+    load_balancer {
+    target_group_arn = aws_lb_target_group.app.arn
+    container_name   = "app" # Must match the name in your task definition
+    container_port   = 3000
+  }
 }
 
 # 1. Create GitHub OIDC Provider
@@ -200,4 +206,76 @@ resource "aws_iam_policy" "github_deploy" {
 resource "aws_iam_role_policy_attachment" "github_deploy" {
   role       = aws_iam_role.github_actions.name
   policy_arn = aws_iam_policy.github_deploy.arn
+}
+
+# ------------------------------------------------------------------
+# LOAD BALANCER CONFIGURATION
+# ------------------------------------------------------------------
+
+# 1. Security Group for the ALB (Allow HTTP and HTTPS)
+resource "aws_security_group" "alb" {
+  name        = "${var.app_name}-alb-sg"
+  description = "Allow HTTP and HTTPS for ALB"
+  vpc_id      = data.aws_vpc.default.id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# 2. Target Group (Where the ALB sends traffic)
+resource "aws_lb_target_group" "app" {
+  name        = "${var.app_name}-tg"
+  port        = 3000
+  protocol    = "HTTP"
+  vpc_id      = data.aws_vpc.default.id
+  target_type = "ip" # Required for Fargate
+
+  health_check {
+    path                = "/"
+    protocol            = "HTTP"
+    matcher             = "200"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+  }
+}
+
+# 3. The Application Load Balancer itself
+resource "aws_lb" "app" {
+  name               = "${var.app_name}-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.alb.id]
+  subnets            = data.aws_subnets.default.ids # Using your default VPC subnets
+}
+
+# 4. HTTP Listener (Port 80) - We will start with HTTP for now
+resource "aws_lb_listener" "http" {
+  load_balancer_arn = aws_lb.app.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.app.arn
+  }
 }
