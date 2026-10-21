@@ -88,7 +88,8 @@ resource "aws_ecs_task_definition" "app" {
       { name = "GROQ_API_KEY", value = var.groq_api_key },
       { name = "NEXTAUTH_SECRET", value = var.nextauth_secret },
       { name = "GOOGLE_CLIENT_ID", value = var.google_client_id },
-      { name = "GOOGLE_CLIENT_SECRET", value = var.google_client_secret }
+      { name = "GOOGLE_CLIENT_SECRET", value = var.google_client_secret },
+      { name = "NEXTAUTH_URL", value = "http://resume-scanner.clouddeploy.name.ng" } 
     ]
     logConfiguration = {
       logDriver = "awslogs"
